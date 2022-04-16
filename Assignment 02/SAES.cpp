@@ -57,7 +57,8 @@ class SAES
 
     string XOR_OP(const string &, const string &);
     string key_function_g(const string &, const string&);
-    string encryption_rounds(const string &, const string&, int);
+    string Encryption_Rounds(const string &, const string&, int);
+    string Decryption_Rounds(const string &, const string&, int);
 
 public:
     
@@ -79,8 +80,8 @@ public:
 
     // key generation function
     void SAES_KEY_GENERATION(const string&);
-    // encryption
     string SAES_Encryption(const string&);
+    string SAES_Decryption(const string&);
 
     string getKey0(){
         return key0;
@@ -107,19 +108,44 @@ public:
 
 string SAES::SAES_Encryption(const string& ip)
 {
-    int dim = 2; // Matrix Dimensions
+    
 /**** ROUND 0 : ADD ROUND KEY *****/ 
-    string text = XOR_OP(ip, key0);
+    string cipherOp = XOR_OP(ip, key0);
+/**** ROUND 1 *****/ 
+    cipherOp = Encryption_Rounds(cipherOp, key1, 1);
+/**** ROUND 2 *****/ 
+    cipherOp = Encryption_Rounds(cipherOp, key2, 2);
 
+    return cipherOp;
+}
 
-    string StateM [dim][dim], outputM[dim][dim]={{"xxxx", "xxxx"}, {"xxxx", "xxxx"}}; // State matrix.
+string SAES::SAES_Encryption(const string& ip)
+{
+    
+/**** ROUND 0 : ADD ROUND KEY *****/ 
+    string cipherOp = XOR_OP(ip, key0);
+/**** ROUND 1 *****/ 
+    cipherOp = Encryption_Rounds(cipherOp, key1, 1);
+/**** ROUND 2 *****/ 
+    cipherOp = Encryption_Rounds(cipherOp, key2, 2);
+
+    return cipherOp;
+}
+
+/********************************************************************************************
+    SAES Key Expansion and Generation
+********************************************************************************************/
+
+string SAES::Encryption_Rounds(const string &text, const string& key, int round)
+{
+    int dim = 2; // Matrix Dimensions
+    string StateM [dim][dim]; // State matrix.
 
     StateM[0][0] = text.substr(0,4); // Nibble 0 is text 0 to 3 bits
     StateM[0][1] = text.substr(8,4); // Nibble 2 is text 8 to 11 bits
     StateM[1][0] = text.substr(4,4); // Nibble 1 is text 4 to 7 bits
-    StateM[1][1] = text.substr(12,4); // Nibble 3 is text 12 to 15 bits
+    StateM[1][1] = text.substr(12,4); // Nibble 3 is text 12 to 15 bit
 
-/**** ROUND 1 *****/ 
 // Niblle Substitution
     int sub_row, sub_col;
 
@@ -136,28 +162,39 @@ string SAES::SAES_Encryption(const string& ip)
 // Shift Rows N3 <--> N1 One Nibble Circular shift of the second row
     StateM[1][0].swap(StateM[1][1]);
 
+
+  string outputM[dim][dim]={{StateM[0][0], StateM[0][1]}, 
+                            {StateM[1][0], StateM[1][1]}};
+
 // Mix Column
-   for(int i=0; i<dim; i++)
-    {
-         outputM[0][i][0] =  xor_char(StateM[0][i][0], StateM[1][i][2]); // b0 = b0^b6
-         outputM[0][i][1] =  xor_char(StateM[0][i][1], StateM[1][i][0], StateM[1][i][3]); // b1 = b1^b4^b7
-         outputM[0][i][2] =  xor_char(StateM[0][i][2], StateM[1][i][0], StateM[1][i][1]); // b2 = b2^b4^b5
-         outputM[0][i][3] =  xor_char(StateM[0][i][3], StateM[1][i][1]); // b3 = b3^b5
+   if(round != 2)
+   {
+       for(int i=0; i<dim; i++)
+        {
+             outputM[0][i][0] =  xor_char(StateM[0][i][0], StateM[1][i][2]); // b0 = b0^b6
+             outputM[0][i][1] =  xor_char(StateM[0][i][1], StateM[1][i][0], StateM[1][i][3]); // b1 = b1^b4^b7
+             outputM[0][i][2] =  xor_char(StateM[0][i][2], StateM[1][i][0], StateM[1][i][1]); // b2 = b2^b4^b5
+             outputM[0][i][3] =  xor_char(StateM[0][i][3], StateM[1][i][1]); // b3 = b3^b5
 
-         outputM[1][i][0] =  xor_char(StateM[0][i][2], StateM[1][i][0]); // b4 = b2^b4
-         outputM[1][i][1] =  xor_char(StateM[0][i][0], StateM[0][i][3], StateM[1][i][1]); // b5 = b0^b3^b5
-         outputM[1][i][2] =  xor_char(StateM[0][i][0], StateM[0][i][1], StateM[1][i][2]); // b6 = b0^b1^b6
-         outputM[1][i][3] =  xor_char(StateM[0][i][1], StateM[1][i][3]); // b7 = b1^b7
+             outputM[1][i][0] =  xor_char(StateM[0][i][2], StateM[1][i][0]); // b4 = b2^b4
+             outputM[1][i][1] =  xor_char(StateM[0][i][0], StateM[0][i][3], StateM[1][i][1]); // b5 = b0^b3^b5
+             outputM[1][i][2] =  xor_char(StateM[0][i][0], StateM[0][i][1], StateM[1][i][2]); // b6 = b0^b1^b6
+             outputM[1][i][3] =  xor_char(StateM[0][i][1], StateM[1][i][3]); // b7 = b1^b7
+        }
     }
-    cout<<endl;
-    cout<< "S00 "<<outputM[0][0]<<endl;
-    cout<< "S01 "<<outputM[0][1]<<endl;
-    cout<< "S10 "<<outputM[1][0]<<endl;
-    cout<< "S11 "<<outputM[1][1]<<endl;
-    return text;
 
+// Add Round Key
+    string op =  outputM[0][0] + outputM[1][0] +  outputM[0][1] +  outputM[1][1];
+    op = XOR_OP(op, key);
+
+    // cout<<endl;
+    // cout<< "S00 "<<outputM[0][0]<<endl;
+    // cout<< "S01 "<<outputM[0][1]<<endl;
+    // cout<< "S10 "<<outputM[1][0]<<endl;
+    // cout<< "S11 "<<outputM[1][1]<<endl;
+    // cout<< "op "<<op<<endl;
+    return op;
 }
-
 
 /********************************************************************************************
     SAES Key Expansion and Generation
@@ -189,7 +226,7 @@ void SAES::SAES_KEY_GENERATION(const string& key)
 }
 
 /********************************************************************************************
-    Key Function G used in SAES
+    Key Transformation Function g used in SAES
 ********************************************************************************************/
 string SAES::key_function_g(const string &w, const string& RC)
 {
