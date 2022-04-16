@@ -1,32 +1,24 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
+.idea
+cmake-build-debug
+CMakeLists*
+*.ppt
+Appendix G.pdf
+*.pptx
+*.zip
+CS549 CNS Resources.jpg
+CS549 Grading Policy.png
+CS549 Teaching.png
+CS549_course_cal.pdf
+CS549_TermProj_22.pdf
+Networking - Cryptography and Network Security Principles and Practice (2014) - Ed. 6th - W. Stallings - Pearson.pdf
+Networking - Cryptography and Network Security Principles and Practice (2017) - Ed. 7th Global - W. Stallings - Pearson.pdf
+Reference/Cryptography An Introduction (3rd Edition).pdf
+Reference/Handbook of Applied Cryptography by Alfred J. Menezes, Paul C. van Oorschot, Scott A. Vanstone.pdf
+Reference/Making, breaking codes an introduction to cryptology by Paul B Garrett.pdf
+solution.pdf
+Exams/CNS MidTerm 2022 - Paper.pdf
+CNS-Term-Project/
+Exams/Vijay_21410158-midterm.pdf
 *.exe
-*.out
-*.app
+*.java
+Books*
