@@ -30,6 +30,9 @@ using namespace std;
     #define CLR "clear"
 #endif
 
+/********************************************************************************************
+        Simplified - Advanced Encryption Standard CLASS
+********************************************************************************************/
 class SAES
 {
     //Round Constant
@@ -107,7 +110,7 @@ public:
 };
 
 /********************************************************************************************
-  
+        S-AES Encryption Function
 ********************************************************************************************/
 string SAES::SAES_Encryption(const string& ip)
 {
@@ -123,7 +126,7 @@ string SAES::SAES_Encryption(const string& ip)
 }
 
 /********************************************************************************************
-  
+        S-AES Decryption Function
 ********************************************************************************************/
 string SAES::SAES_Decryption(const string& ip)
 {
@@ -139,7 +142,7 @@ string SAES::SAES_Decryption(const string& ip)
 }
 
 /********************************************************************************************
-  
+        Rounds Used in Encryption
 ********************************************************************************************/
 string SAES::Encryption_Rounds(const string &text, const string& key, int round)
 {
@@ -171,7 +174,7 @@ string SAES::Encryption_Rounds(const string &text, const string& key, int round)
   string outputM[dim][dim]={{StateM[0][0], StateM[0][1]}, 
                             {StateM[1][0], StateM[1][1]}};
 
-    // Mix Column
+    // Mix Column Using XOR Operation Alternative
    if(round != 2)
    {
        for(int i=0; i<dim; i++)
@@ -192,17 +195,11 @@ string SAES::Encryption_Rounds(const string &text, const string& key, int round)
     string op =  outputM[0][0] + outputM[1][0] +  outputM[0][1] +  outputM[1][1];
     op = XOR_OP(op, key);
 
-    // cout<<endl;
-    // cout<< "S00 "<<outputM[0][0]<<endl;
-    // cout<< "S01 "<<outputM[0][1]<<endl;
-    // cout<< "S10 "<<outputM[1][0]<<endl;
-    // cout<< "S11 "<<outputM[1][1]<<endl;
-    // cout<< "op "<<op<<endl;
     return op;
 }
 
 /********************************************************************************************
-  
+        Rounds Used in Decryption
 ********************************************************************************************/
 string SAES::Decryption_Rounds(const string &text, const string& key, int round)
 {
@@ -216,6 +213,7 @@ string SAES::Decryption_Rounds(const string &text, const string& key, int round)
 
     // Inverse Shift Rows N3 <--> N1 One Nibble Circular shift of the second row
     StateM[1][0].swap(StateM[1][1]);
+
 
     // Inverse Nibble Substitution
     int sub_row, sub_col;
@@ -234,36 +232,26 @@ string SAES::Decryption_Rounds(const string &text, const string& key, int round)
     string op =  StateM[0][0] + StateM[1][0] +  StateM[0][1] +  StateM[1][1];
     op = XOR_OP(op, key);
     
-  string outputM[dim][dim]={{op.substr(0,4),op.substr(8,4)}, 
-                            {op.substr(4,4), op.substr(12,4)};
-
-// Mix Column
+// Inverse Mix Column Using XOR Operation
    if(round != 2)
-   {
-       for(int i=0; i<dim; i++)
+   { 
+     string temp = op;
+       for(int i=0; i<TextLength; i=i+8)
         {
-             outputM[0][i][0] =  xor_char(StateM[0][i][3], StateM[1][i][1]); // b0 = b0^b6
-             outputM[0][i][1] =  xor_char(StateM[0][i][0], StateM[1][i][0], StateM[1][i][3]); // b1 = b1^b4^b7
-             outputM[0][i][2] =  xor_char(StateM[0][i][2], StateM[1][i][0], StateM[1][i][1]); // b2 = b2^b4^b5
-             outputM[0][i][3] =  xor_char(StateM[0][i][3], StateM[1][i][1]); // b3 = b3^b5
-
-             outputM[1][i][0] =  xor_char(StateM[0][i][2], StateM[1][i][0]); // b4 = b2^b4
-             outputM[1][i][1] =  xor_char(StateM[0][i][0], StateM[0][i][3], StateM[1][i][1]); // b5 = b0^b3^b5
-             outputM[1][i][2] =  xor_char(StateM[0][i][0], StateM[0][i][1], StateM[1][i][2]); // b6 = b0^b1^b6
-             outputM[1][i][3] =  xor_char(StateM[0][i][1], StateM[1][i][3]); // b7 = b1^b7
+             temp[i+0] =  xor_char(op[i+3], op[i+5]); // k0 = k3^k5
+             temp[i+1] =  xor_char(op[i+0], op[i+6]); // k1 = k0^k6
+             temp[i+2] =  xor_char(op[i+1], op[i+4], op[i+7]); // k2 = k1^k4^k7
+             temp[i+3] =  xor_char(op[i+2], op[i+3], op[i+4]); // k3 = k2^k3^k4
+             temp[i+4] =  xor_char(op[i+1], op[i+7]); // k4 = k1^k7
+             temp[i+5] =  xor_char(op[i+2], op[i+4]); // k5 = k2^k4
+             temp[i+6] =  xor_char(op[i+0], op[i+3], op[i+5]); // k6 = k0^k3^k5
+             temp[i+7] =  xor_char(op[i+0], op[i+6], op[i+7]); // k7 = k0^k6^k7
         }
+        op = temp;
     }
 
-
-
-    // cout<<endl;
-    // cout<< "S00 "<<outputM[0][0]<<endl;
-    // cout<< "S01 "<<outputM[0][1]<<endl;
-    // cout<< "S10 "<<outputM[1][0]<<endl;
-    // cout<< "S11 "<<outputM[1][1]<<endl;
-    // cout<< "op "<<op<<endl;
     return op;
-}
+}//Decryption_Rounds
 
 /********************************************************************************************
     SAES Key Expansion and Generation
@@ -367,14 +355,13 @@ int main()
                 cout<<"\n Enter Plain Text String (16-bits) : ";
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                // getline(cin,ip_plain_txt);
+                getline(cin,ip_plain_txt);
 
                 cout<<"\n Enter Key String (16-bits) : ";
-                // getline(cin,key);
+                getline(cin,key);
 
-               ip_plain_txt="0110111101101011";  //--> op_cipher_txt="0000011100111000";
-//                ip_plain_txt="10010111";  //--> op_cipher_txt="00111000";
-               key="1010011100111011";
+               // ip_plain_txt="0110111101101011";  //--> op_cipher_txt="0000011100111000";
+               // key="1010011100111011";
 
                 obj->SAES_KEY_GENERATION(key);
                 op_cipher_txt = obj->SAES_Encryption(ip_plain_txt);
@@ -392,21 +379,21 @@ int main()
                 cout<<"\n Enter Cipher Text String : ";
                 cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                // getline(cin, ip_cipher_txt);
+                getline(cin, ip_cipher_txt);
 
                 cout<<"\n Enter Key String (16-bits) : ";
-                    // cin>>key;
-                op_cipher_txt="0000011100111000";
-                 key="1010011100111011";
+                    cin>>key;
+                // ip_cipher_txt="0000011100111000";
+                //  key="1010011100111011";
 
                 obj->SAES_KEY_GENERATION(key);
                 op_plain_txt = obj->SAES_Decryption(ip_cipher_txt);
 
-                cout<<"\n SDES DECRYPTION DONE :"
+                cout<<"\n SAES DECRYPTION DONE :"
                     << "\n :::::=> Cipher Text (input) : " <<ip_cipher_txt
-                    << "\n :::::=> Key (input) : " <<key
-                    // << "\t:::=> Key1 : "<<obj->getKey1()
-                    // << "\t:::=> Key2  : " <<obj->getKey2()
+                    << "\n :::::=> Key0 (input) : " <<obj->getKey0()
+                    << "\t:::=> Key1 : "<<obj->getKey1()
+                    << "\t:::=> Key2  : " <<obj->getKey2()
                     << "\n :::::=> Plain Text (output) : "<<op_plain_txt;
 
                 break;
