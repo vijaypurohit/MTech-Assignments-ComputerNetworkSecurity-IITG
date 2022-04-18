@@ -4,7 +4,7 @@
 >
 > Roll Num - [214101058](https://www.iitg.ac.in/cse/student-pages/vijay.purohit) [Vijay Purohit](https://github.com/vijaypurohit)
 >
-> [Question PDF](/Question/CNS_HW1.pdf?target=_blank) [Solution](/Question/214101058_CNS_HW1.pdf?target=_blank)
+> [Question PDF](/Assignment%2001%20-%20CaeserCipher%2C%20LetterFrequency%2C%20SDES/Question/CNS_HW1.pdf?target=_blank) [Solution](/Assignment%2001%20-%20CaeserCipher%2C%20LetterFrequency%2C%20SDES/Question/214101058_CNS_HW1.pdf?target=_blank)
 >
 > Execution of Program 
 ----------------------------------------------------
